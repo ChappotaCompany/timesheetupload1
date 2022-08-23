@@ -1,0 +1,33 @@
+<mvc:View
+    controllerName="com.chappota.timesheet.timesheetupload.controller.Worklist"
+    xmlns="sap.m"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns:semantic="sap.f.semantic">
+
+    <semantic:SemanticPage
+        id="page"
+        headerPinnable="false"
+        toggleHeaderOnTitleClick="false">
+
+        <semantic:titleHeading>
+            <Title
+                text="{i18n>worklistTitle}"
+                level="H2"/>
+        </semantic:titleHeading>
+
+        <semantic:content>
+        <Panel>
+        <content>
+        <Text text="Guess Me" />
+        </content>
+        </Panel>
+          
+        </semantic:content>
+
+        <semantic:sendEmailAction>
+            <semantic:SendEmailAction id="shareEmail" press=".onShareEmailPress"/>
+        </semantic:sendEmailAction>
+
+    </semantic:SemanticPage>
+
+</mvc:View>
