@@ -139,114 +139,51 @@
 								</ColumnListItem>
 							</items>
 						</Table>
-						<!-- </WizardStep>
-						<WizardStep id="tabledata" title="Time Sheet"> -->
-						<!-- <Text text="Table" /> -->
-                          <!-- <Table items="{localModel>/items}" id="timesheettable">
-                           <headerToolbar>
-                                    <Toolbar>
-                                        <content>
-                                        <ToolbarSpacer />
-                                            <Button icon = "sap-icon://action-settings" press = "onPersoButtonPressed" />
+					</WizardStep>
+					
+						<WizardStep id="post" title="Upload" validated="true">
+							<VBox>
+                             <Button text="Upload" press="_postTime" visible="false"/>
 
-                                        </content>
-                                    </Toolbar>
-                            </headerToolbar>
-							<columns>
-								<Column id="caCol">
-									<Label text="Controlling Area"/>
-								</Column>
-								<Column id="rccCol">
-									<Label text="Receiver Cost Center"/>
-								</Column>
-								<Column id="atCol">
-									<Label text="Activity Type"/>
-								</Column>
-								<Column id="wiCol">
-									<Label text="WorkItem"/>
-								</Column>
-                                <Column id="bccCol">
-									<Label text="Billing Control Category"/>
-								</Column>
-                                <Column id="wbsCol">
-									<Label text="WBS Element"/>
-								</Column>
-                                <Column id="tsnCol">
-									<Label text="Time Sheet Note"/>
-								</Column>
-                                <Column id="rhCol">
-									<Label text="Recorded Hours"/>
-								</Column>
-                                <Column id="humCol">
-									<Label text="Hours Unit Of Measure"/>
-								</Column>
-                                <Column id="twlCol">
-									<Label text="TimeSheet Wrk LocCode"/>
-								</Column>
-                                <Column id="pweCol">
-									<Label text="Person WorkAgreement ExternalID"/>
-								</Column>
-                                <Column id="ccCol">
-									<Label text="CompanyCode"/>
-								</Column>
-                                 <Column id="trCol">
-									<Label text="TimeSheet Record"/>
-								</Column>
-                                <Column id="tdCol">
-									<Label text="TimeSheet Date"/>
-								</Column>
-                                <Column id="tiroCol">
-									<Label text="TimeSheet Is Released OnSave"/>
-								</Column>
-                                 <Column id="tsCol">
-									<Label text="TimeSheet Status"/>
-								</Column>
-                                <Column id="tieitCol">
-									<Label text="TimeSheet Is Executed In TestRun"/>
-								</Column>
-                                <Column id="toCol">
-									<Label text="TimeSheet Operation"/>
-								</Column>
-                                 <Column id="yywCol">
-									<Label text="YY1_WorkLocationType_TIM"/>
-								</Column>
-                                 <Column id="yyuCol">
-									<Label text="YY1_UniqueReferenceNum_TIM"/>
-								</Column>
+                         <Table items="{path: 'disp>/res'}" id="displaytable" visible="false">
                           
+							<columns>																
+								<Column>
+									<Label text="Activity Type"/>
+								</Column>		
+                                 <Column >
+                                    <Label text="Personal Number"/>
+                                </Column>  						
+                                  <Column >
+                                    <Label text="Status"/>
+                                </Column>
+                                  <Column >
+                                    <Label text="Message"/>
+                                </Column>
+                                 <Column >
+                                    <Label text="ReProcess"/>
+                                </Column>
+                                       
 							</columns>
 							<items>
 								<ColumnListItem>
-									<cells>
-										<Text text="{localModel>Controlling Area}"/>
-										<Text text="{localModel>Receiver Cost Center}"/>
-										<Text text="{localModel>Activity Type}"/>
-										<Text text="{localModel>WorkItem}"/>
-                                        <Text text="{localModel>Billing Control Category}"/>
-                                        <Text text="{localModel>WBS Element}"/>
-                                        <Text text="{localModel>Time Sheet Note}"/>
-                                        <Text text="{localModel>Recorded Hours}"/>
-                                        <Text text="{localModel>Hours Unit Of Measure}"/>
-                                        <Text text="{localModel>TimeSheet Wrk LocCode}"/>
-                                        <Text text="{localModel>Person WorkAgreement ExternalID}"/>
-                                        <Text text="{localModel>CompanyCode}"/>
-                                          <Text text="{localModel>TimeSheet Record}"/>
-                                        <Text text="{path:'localModel>TimeSheet Date',formatter:'.formatter.dateTime'}"/> 
-                                        <Text text="{localModel>TimeSheet Is Released OnSave}"/>
-                                          <Text text="{localModel>TimeSheet Status}"/>
-                                        <Text text="{localModel>TimeSheet Is Executed In TestRun}"/>
-                                        <Text text="{localModel>TimeSheet Operation}"/>
-                                         <Text text="{localModel>YY1_WorkLocationType_TIM}"/>
-                                          <Text text="{localModel>YY1_UniqueReferenceNum_TIM}"/>
+									<cells>																	
+										<Text text="{disp>ActivityType}"/>	
+                                         <Text text="{disp>PersonalNumber}"/>		
+                                        <Text text="{disp>Status}"/>
+                                         <Text text="{disp>Message}"/>
+                                         <Button text="Reprocess" visible="{ =${disp>Status}==='Error'? true: false}"/>
+                                        
+                                        									
+                                        <!-- <ObjectStatus state="{ =${disp>Status}=== undefined?'Error' : 'Success'}" 
+                                        text="{ =${disp>Status}=== undefined?'Error' : 'Success'}" /> -->
+                                       
                                           
 									</cells>
 								</ColumnListItem>
 							</items>
-						</Table> -->
-						</WizardStep>
-						<WizardStep id="post" title="Upload" validated="true">
-							
-                             <Button text="Upload" press="_postTime" visible="false"/>
+						</Table> 
+                        </VBox>
 						</WizardStep>
 					</Wizard>
         <!-- <Panel>
