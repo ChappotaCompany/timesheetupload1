@@ -74,7 +74,9 @@ sap.ui.define([
         onUpload: function (e) {
             this._import(e.getParameter("files") && e.getParameter("files")[0]);
         },
-
+        /**********************************************************/
+        /*  Method to Post time to TimeSheetEntryCollection        */
+        /**********************************************************/
         _postTime: function (oEvent) {
             var oTable = this.getView().byId("timesheettable");
             this.count = oTable.mAggregations.items.length;
@@ -129,21 +131,11 @@ sap.ui.define([
 
 
         },
+          /******************************************************************************/
+        /*  Method used to print Status, Error and ReProcess on DisplayTable            */
+        /******************************************************************************/
         _statusreusable: function (status, data) {
-            // debugger;
-            //     var jsonarray = [];
-            //     var finalarray = [];
-            // 
 
-
-            // for(var i=0;i<this.count;i++){
-            //     var testdata = {
-            //         "ActivityType" : this.acttype,
-            //         "PersonalNumber" : this.prnr
-            //     };
-            //     testdata.Status = status;
-            //     finalarray.push(testdata);
-            // }
 
             var oldData = this.getView().byId("displaytable").getModel("disp").getData();
             if (status === "Error") {
@@ -161,7 +153,7 @@ sap.ui.define([
                     "Message": ""
                 });
             }
-            //this.getView().byId("displaytable").getModel("disp").setData(oldData);
+            
             this.getView().byId("displaytable").getModel("disp").refresh();
             this.byId("displaytable").setVisible(true);
         },
