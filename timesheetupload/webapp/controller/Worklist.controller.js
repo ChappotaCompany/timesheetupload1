@@ -8,9 +8,9 @@ sap.ui.define([
     'sap/m/TablePersoController',
     'sap/m/library',
     './DemoPersoService'
-], function (BaseController, JSONModel, formatter, Filter, FilterOperator, MessageToast,TablePersoController,mlibrary,DemoPersoService) {
+], function (BaseController, JSONModel, formatter, Filter, FilterOperator, MessageToast, TablePersoController, mlibrary, DemoPersoService) {
     "use strict";
-    var ResetAllMode =  mlibrary.ResetAllMode;
+    var ResetAllMode = mlibrary.ResetAllMode;
 
     return BaseController.extend("com.chappota.timesheet.timesheetupload.controller.Worklist", {
 
@@ -31,16 +31,19 @@ sap.ui.define([
 
 
             this._oTPC = new TablePersoController({
-				table: this.byId("timesheettable"),
-				//specify the first part of persistence ids e.g. 'demoApp-productsTable-dimensionsCol'
-				componentName: "demoApp",
-				resetAllMode: ResetAllMode.ServiceReset,
-				persoService: DemoPersoService
-			}).activate();
+                table: this.byId("timesheettable"),
+                // specify the first part of persistence ids e.g. 'demoApp-productsTable-dimensionsCol'
+                componentName: "demoApp",
+                resetAllMode: ResetAllMode.ServiceReset,
+                persoService: DemoPersoService
+            }).activate();
 
+            var jsonmode1l1 = new JSONModel();
+            jsonmode1l1.setData({"res": []});
+            this.getView().byId("displaytable").setModel(jsonmode1l1, "disp");
         },
-    
-        
+
+
         /* =========================================================== */
         /* Method to impor the excel sheet and push to the table       */
         /* =========================================================== */
@@ -74,6 +77,7 @@ sap.ui.define([
 
         _postTime: function (oEvent) {
             var oTable = this.getView().byId("timesheettable");
+            this.count = oTable.mAggregations.items.length;
             for (var i = 0; i < oTable.mAggregations.items.length; i++) { // for(var j=0;j<oTable.mAggregations.items[i].mAggregations.cells.length;j++){
                 debugger;
 
@@ -101,15 +105,21 @@ sap.ui.define([
                 };
 
 
-                // }
+                this.acttype = oTable.mAggregations.items[i].mAggregations.cells[2].getText();
+                this.prnr = oTable.mAggregations.items[i].mAggregations.cells[10].getText();
+
+
                 var wipsaves = this.getOwnerComponent().getModel();
                 wipsaves.create("/TimeSheetEntryCollection", finalRecordPayload, {
                     success: (odata) => {
-                        debugger;
-                        MessageToast.show("Posted!");
+
+                        this._statusreusable('Success', odata);
+
                     },
                     error: (err) => {
-                        MessageToast.show(err);
+
+                        this._statusreusable('Error', err);
+
 
                     }
                 });
@@ -117,30 +127,64 @@ sap.ui.define([
 
             }
 
-          
+
+        },
+        _statusreusable: function (status, data) {
+            // debugger;
+            //     var jsonarray = [];
+            //     var finalarray = [];
+            // 
+
+
+            // for(var i=0;i<this.count;i++){
+            //     var testdata = {
+            //         "ActivityType" : this.acttype,
+            //         "PersonalNumber" : this.prnr
+            //     };
+            //     testdata.Status = status;
+            //     finalarray.push(testdata);
+            // }
+
+            var oldData = this.getView().byId("displaytable").getModel("disp").getData();
+            if (status === "Error") {
+                oldData.res.push({
+                    "ActivityType": this.acttype,
+                    "PersonalNumber": JSON.parse(data.responseText).error.message.value.split(" ")[8],
+                    "Status": status,
+                    "Message": JSON.parse(data.responseText).error.message.value
+                });
+            }else{
+                oldData.res.push({
+                    "ActivityType": this.acttype,
+                    "PersonalNumber": data.PersonWorkAgreement,
+                    "Status": status,
+                    "Message": ""
+                });
+            }
+            //this.getView().byId("displaytable").getModel("disp").setData(oldData);
+            this.getView().byId("displaytable").getModel("disp").refresh();
+            this.byId("displaytable").setVisible(true);
         },
 
-         /**************************************/
+        /**************************************/
         /*  Method used for Table Personaliztion*/
         /**************************************/
         onPersoButtonPressed: function (oEvent) {
-			this._oTPC.openDialog();
-		},
+            this._oTPC.openDialog();
+        },
 
         onExit: function () {
-			this._oTPC.destroy();
-		},
-		onTablePersoRefresh : function() {
-			DemoPersoService.resetPersData().done(
-				function() {
-					this._oTPC.refresh();
-				}.bind(this)
-			);
-		},
+            this._oTPC.destroy();
+        },
+        onTablePersoRefresh: function () {
+            DemoPersoService.resetPersData().done(function () {
+                this._oTPC.refresh();
+            }.bind(this));
+        },
 
-		onTableGrouping : function(oEvent) {
-			this._oTPC.setHasGrouping(oEvent.getSource().getSelected());
-		},
+        onTableGrouping: function (oEvent) {
+            this._oTPC.setHasGrouping(oEvent.getSource().getSelected());
+        },
 
         /* =========================================================== */
         /* event handlers                                              */

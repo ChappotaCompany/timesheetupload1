@@ -47,7 +47,7 @@ sap.ui.define([
                 // guidelines say "display a single message in a message box" assuming that there
                 // will be only one at a time.
                 sErrorTitle = aMessages.length === 1 ? sErrorText : sMultipleErrors;
-                this._showServiceError(sErrorTitle, aMessages[0].message);
+                //this._showServiceError(sErrorTitle, aMessages[0].message);
             }, this);
         },
 
