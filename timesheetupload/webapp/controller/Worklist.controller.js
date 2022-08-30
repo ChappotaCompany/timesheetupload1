@@ -49,6 +49,7 @@ sap.ui.define([
         /* =========================================================== */
 
         _import: function (file) {
+            this.byId("filenameid").setValue(file.name);
             var that = this;
             var excelData = {};
             if (file && window.FileReader) {
@@ -77,11 +78,31 @@ sap.ui.define([
         /**********************************************************/
         /*  Method to Post time to TimeSheetEntryCollection        */
         /**********************************************************/
-        _postTime: function (oEvent) {
+        _postTime1 : function(oEvent){
+            var displaytablelength = this.byId("displaytable").getItems().length;
+            var data = [];
+            if(displaytablelength > 0){
+                
+                this.byId("displaytable").getModel("disp").setData(data);
+                this._postTime1();
+            }
+            else {
+                this._postTime1();
+            }
+        },
+        
+            _postTime: function (oEvent) {
+
+                this.getView().byId("displaytable").getModel("disp").getData().res = [];
+
+ this.getView().byId("displaytable").getModel("disp").refresh();
+
+
+
             var oTable = this.getView().byId("timesheettable");
             this.count = oTable.mAggregations.items.length;
             for (var i = 0; i < oTable.mAggregations.items.length; i++) { // for(var j=0;j<oTable.mAggregations.items[i].mAggregations.cells.length;j++){
-                debugger;
+                
 
                 var finalRecordPayload = {
                     "TimeSheetDataFields": {
@@ -110,52 +131,52 @@ sap.ui.define([
                 this.acttype = oTable.mAggregations.items[i].mAggregations.cells[2].getText();
                 this.prnr = oTable.mAggregations.items[i].mAggregations.cells[10].getText();
 
-
-                var wipsaves = this.getOwnerComponent().getModel();
-                wipsaves.create("/TimeSheetEntryCollection", finalRecordPayload, {
-                    success: (odata) => {
-
-                        this._statusreusable('Success', odata);
-
-                    },
-                    error: (err) => {
-
-                        this._statusreusable('Error', err);
-
-
-                    }
-                });
+                
+                this._statusreusable(this.prnr, finalRecordPayload);
+                
 
 
             }
-
+        
 
         },
           /******************************************************************************/
         /*  Method used to print Status, Error and ReProcess on DisplayTable            */
         /******************************************************************************/
-        _statusreusable: function (status, data) {
+        _statusreusable: function (perner, finalRecordPayload) {
 
+            var wipsaves = this.getOwnerComponent().getModel(),
+            oldData = this.getView().byId("displaytable").getModel("disp").getData();
+                wipsaves.create("/TimeSheetEntryCollection", finalRecordPayload, {
+                    success: (odata) => {
 
-            var oldData = this.getView().byId("displaytable").getModel("disp").getData();
-            if (status === "Error") {
-                oldData.res.push({
-                    "ActivityType": this.acttype,
-                    "PersonalNumber": JSON.parse(data.responseText).error.message.value.split(" ")[8],
-                    "Status": status,
-                    "Message": JSON.parse(data.responseText).error.message.value
+                        //this._statusreusable('Success', odata);
+                        oldData.res.push({
+                            "ActivityType": this.acttype,
+                            "PersonalNumber": perner,
+                            "Status": 'Success',
+                            "Message": ""
+                        });
+                        this.byId("displaytable").setVisible(true);
+                        this.getView().byId("displaytable").getModel("disp").refresh();
+                    },
+                    error: (err) => {
+                        debugger
+                        //this._statusreusable('Error', err);
+                        oldData.res.push({
+                            "ActivityType": this.acttype,
+                            "PersonalNumber": perner,
+                           // "PersonalNumber" : this.prnr,
+                            "Status": 'Error',
+                            "Message": JSON.parse(err.responseText).error.message.value
+                        });
+                        this.byId("displaytable").setVisible(true);
+                        this.getView().byId("displaytable").getModel("disp").refresh();
+
+                    }
                 });
-            }else{
-                oldData.res.push({
-                    "ActivityType": this.acttype,
-                    "PersonalNumber": data.PersonWorkAgreement,
-                    "Status": status,
-                    "Message": ""
-                });
-            }
-            
-            this.getView().byId("displaytable").getModel("disp").refresh();
-            this.byId("displaytable").setVisible(true);
+
+           
         },
 
         /**************************************/

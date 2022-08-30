@@ -29,11 +29,11 @@
 						</WizardStep>
 						<WizardStep id="uploadfile" title="Choose File" validated="true">
                         <HBox>
-							<Input placeholder="filename" width="auto"/>
-                            <!-- <Button text="Browser"/> -->
+							                   
                              <u:FileUploader id="FileUploaderId" sameFilenameAllowed="true" iconOnly="false" 
         buttonOnly="true" fileType="XLSX,xlsx"
 		icon="sap-icon://upload" iconFirst="true" style="Emphasized" change="onUpload"/>
+        <Input placeholder="filename" enabled="false" id="filenameid" width="350px"/>         
         </HBox>
         <Table items="{localModel>/items}" id="timesheettable">
         	<dependents>
@@ -121,7 +121,7 @@
                                         <Text text="{localModel>Billing Control Category}"/>
                                         <Text text="{localModel>WBS Element}"/>
                                         <Text text="{localModel>Time Sheet Note}"/>
-                                        <Text text="{localModel>Recorded Hours}"/>
+                                        <Text text="{localModel>Recorded Hours}" />
                                         <Text text="{localModel>Hours Unit Of Measure}"/>
                                         <Text text="{localModel>TimeSheet Wrk LocCode}"/>
                                         <Text text="{localModel>Person WorkAgreement ExternalID}"/>
@@ -143,10 +143,9 @@
 					
 						<WizardStep id="post" title="Upload" validated="true">
 							<VBox>
-                             <Button text="Upload" press="_postTime" visible="false"/>
+                            
 
-                         <Table items="{path: 'disp>/res'}" id="displaytable" visible="false">
-                          
+                         <Table items="{path: 'disp>/res'}" id="displaytable" visible="false">                          
 							<columns>																
 								<Column>
 									<Label text="Activity Type"/>
@@ -168,125 +167,19 @@
 							<items>
 								<ColumnListItem>
 									<cells>																	
-										<Text text="{disp>ActivityType}"/>	
-                                         <Text text="{disp>PersonalNumber}"/>		
-                                        <Text text="{disp>Status}"/>
-                                         <Text text="{disp>Message}"/>
-                                         <Button text="Reprocess" visible="{ =${disp>Status}==='Error'? true: false}"/>
-                                        
-                                        									
-                                        <!-- <ObjectStatus state="{ =${disp>Status}=== undefined?'Error' : 'Success'}" 
-                                        text="{ =${disp>Status}=== undefined?'Error' : 'Success'}" /> -->
-                                       
-                                          
-									</cells>
+										    <Text text="{disp>ActivityType}"/>	
+                                            <Text text="{disp>PersonalNumber}"/>		
+                                            <Text text="{disp>Status}"/>
+                                            <Text text="{disp>Message}"/>
+                                            <Button text="Reprocess" visible="{path:'disp>Status',formatter:'.formatter.status'}"/>
+                                    </cells>
 								</ColumnListItem>
 							</items>
 						</Table> 
                         </VBox>
 						</WizardStep>
 					</Wizard>
-        <!-- <Panel>
-        <content>
-
-        <u:FileUploader id="FileUploaderId" sameFilenameAllowed="true" iconOnly="false" 
-        buttonOnly="true" fileType="XLSX,xlsx"
-		icon="sap-icon://upload" iconFirst="true" style="Emphasized" change="onUpload"/>
-        <Button text="Upload" press="_postTime" />
-        <Table items="{localModel>/items}" id="timesheettable">
-							<columns>
-								<Column>
-									<Label text="Controlling Area"/>
-								</Column>
-								<Column>
-									<Label text="Receiver Cost Center"/>
-								</Column>
-								<Column>
-									<Label text="Activity Type"/>
-								</Column>
-								<Column>
-									<Label text="WorkItem"/>
-								</Column>
-                                <Column>
-									<Label text="Billing Control Category"/>
-								</Column>
-                                <Column>
-									<Label text="WBS Element"/>
-								</Column>
-                                <Column>
-									<Label text="Time Sheet Note"/>
-								</Column>
-                                <Column>
-									<Label text="Recorded Hours"/>
-								</Column>
-                                <Column>
-									<Label text="Hours Unit Of Measure"/>
-								</Column>
-                                <Column>
-									<Label text="TimeSheet Wrk LocCode"/>
-								</Column>
-                                <Column>
-									<Label text="Person WorkAgreement ExternalID"/>
-								</Column>
-                                <Column>
-									<Label text="CompanyCode"/>
-								</Column>
-                                 <Column>
-									<Label text="TimeSheet Record"/>
-								</Column>
-                                <Column>
-									<Label text="TimeSheet Date"/>
-								</Column>
-                                <Column>
-									<Label text="TimeSheet Is Released OnSave"/>
-								</Column>
-                                 <Column>
-									<Label text="TimeSheet Status"/>
-								</Column>
-                                <Column>
-									<Label text="TimeSheet Is Executed In TestRun"/>
-								</Column>
-                                <Column>
-									<Label text="TimeSheet Operation"/>
-								</Column>
-                                 <Column>
-									<Label text="YY1_WorkLocationType_TIM"/>
-								</Column>
-                                 <Column>
-									<Label text="YY1_UniqueReferenceNum_TIM"/>
-								</Column>
-                          
-							</columns>
-							<items>
-								<ColumnListItem>
-									<cells>
-										<Text text="{localModel>Controlling Area}"/>
-										<Text text="{localModel>Receiver Cost Center}"/>
-										<Text text="{localModel>Activity Type}"/>
-										<Text text="{localModel>WorkItem}"/>
-                                        <Text text="{localModel>Billing Control Category}"/>
-                                        <Text text="{localModel>WBS Element}"/>
-                                        <Text text="{localModel>Time Sheet Note}"/>
-                                        <Text text="{localModel>Recorded Hours}"/>
-                                        <Text text="{localModel>Hours Unit Of Measure}"/>
-                                        <Text text="{localModel>TimeSheet Wrk LocCode}"/>
-                                        <Text text="{localModel>Person WorkAgreement ExternalID}"/>
-                                        <Text text="{localModel>CompanyCode}"/>
-                                          <Text text="{localModel>TimeSheet Record}"/>
-                                        <Text text="{localModel>TimeSheet Date}"/> 
-                                        <Text text="{localModel>TimeSheet Is Released OnSave}"/>
-                                          <Text text="{localModel>TimeSheet Status}"/>
-                                        <Text text="{localModel>TimeSheet Is Executed In TestRun}"/>
-                                        <Text text="{localModel>TimeSheet Operation}"/>
-                                         <Text text="{localModel>YY1_WorkLocationType_TIM}"/>
-                                          <Text text="{localModel>YY1_UniqueReferenceNum_TIM}"/>
-                                          
-									</cells>
-								</ColumnListItem>
-							</items>
-						</Table>
-        </content>
-        </Panel> -->
+      
           
         </semantic:content>
 
