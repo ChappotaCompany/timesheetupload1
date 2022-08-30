@@ -114,6 +114,11 @@ dateTimebackend: function(date) {
                 return "";
             }
             return parseFloat(sValue).toFixed(2);
+        },
+        status : function(s1){
+            
+            if(s1==='Error') return true
+            if(s1==='Success') return false
         }
 
     };
