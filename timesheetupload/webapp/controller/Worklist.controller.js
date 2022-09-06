@@ -7,8 +7,10 @@ sap.ui.define([
     "sap/m/MessageToast",
     'sap/m/TablePersoController',
     'sap/m/library',
-    './DemoPersoService'
-], function (BaseController, JSONModel, formatter, Filter, FilterOperator, MessageToast, TablePersoController, mlibrary, DemoPersoService) {
+    './DemoPersoService',
+    "../libs/xlsx",
+    "../libs/jszip",
+], function (BaseController, JSONModel, formatter, Filter, FilterOperator, MessageToast, TablePersoController, mlibrary, DemoPersoService, xlsx, jszip) {
     "use strict";
     var ResetAllMode = mlibrary.ResetAllMode;
 
@@ -78,31 +80,30 @@ sap.ui.define([
         /**********************************************************/
         /*  Method to Post time to TimeSheetEntryCollection        */
         /**********************************************************/
-        _postTime1 : function(oEvent){
-            var displaytablelength = this.byId("displaytable").getItems().length;
-            var data = [];
-            if(displaytablelength > 0){
-                
-                this.byId("displaytable").getModel("disp").setData(data);
-                this._postTime1();
-            }
-            else {
-                this._postTime1();
-            }
-        },
-        
-            _postTime: function (oEvent) {
+        // _postTime1 : function(oEvent){
+        //     var displaytablelength = this.byId("displaytable").getItems().length;
+        //     var data = [];
+        //     if(displaytablelength > 0){
 
-                this.getView().byId("displaytable").getModel("disp").getData().res = [];
+        //         this.byId("displaytable").getModel("disp").setData(data);
+        //         this._postTime1();
+        //     }
+        //     else {
+        //         this._postTime1();
+        //     }
+        // },
 
- this.getView().byId("displaytable").getModel("disp").refresh();
+        _postTime: function (oEvent) {
+            debugger;
+            this.getView().byId("displaytable").getModel("disp").getData().res = [];
 
+            this.getView().byId("displaytable").getModel("disp").refresh();
 
 
             var oTable = this.getView().byId("timesheettable");
             this.count = oTable.mAggregations.items.length;
-            for (var i = 0; i < oTable.mAggregations.items.length; i++) { // for(var j=0;j<oTable.mAggregations.items[i].mAggregations.cells.length;j++){
-                
+            for (var i = 0; i < oTable.mAggregations.items.length; i++) {
+
 
                 var finalRecordPayload = {
                     "TimeSheetDataFields": {
@@ -127,56 +128,169 @@ sap.ui.define([
                     "TimeSheetOperation": 'C' // (Use “C” for new, “U” for Edited and “D” for deleted)
                 };
 
-
                 this.acttype = oTable.mAggregations.items[i].mAggregations.cells[2].getText();
+                this.wbs = oTable.mAggregations.items[i].mAggregations.cells[5].getText();
+                this.timesheetnote = this.wbs = oTable.mAggregations.items[i].mAggregations.cells[6].getText();
+                this.rechoursqty = oTable.mAggregations.items[i].mAggregations.cells[7].getText();
                 this.prnr = oTable.mAggregations.items[i].mAggregations.cells[10].getText();
+                this.timesheetrecord = oTable.mAggregations.items[i].mAggregations.cells[12].getText();
+                this.timesheetstatus = oTable.mAggregations.items[i].mAggregations.cells[15].getText();
+                this.date = this.formatter.dateTimebackendwithtime(oTable.mAggregations.items[i].mAggregations.cells[13].getText());
 
-                
-                this._statusreusable(this.prnr, finalRecordPayload);
-                
+                // this._statusreusable(this.acttype, this.wbs, this.timesheetnote, this.rechoursqty, this.prnr, this.timesheetrecord, this.timesheetstatus, this.date, finalRecordPayload);
+
+                this._statusreusable(this.prnr, finalRecordPayload, this.date);
 
 
             }
-        
+
 
         },
-          /******************************************************************************/
+        /******************************************************************************/
         /*  Method used to print Status, Error and ReProcess on DisplayTable            */
         /******************************************************************************/
-        _statusreusable: function (perner, finalRecordPayload) {
-
+        // _statusreusable: function (acttype,wbs,timenote,rechrsqty,prnr,timesheetrecord,timesheetstatus,date,finalRecordPayload) {
+        _statusreusable: function (prnr, finalRecordPayload, date) {
+            debugger;
             var wipsaves = this.getOwnerComponent().getModel(),
-            oldData = this.getView().byId("displaytable").getModel("disp").getData();
-                wipsaves.create("/TimeSheetEntryCollection", finalRecordPayload, {
-                    success: (odata) => {
+                oldData = this.getView().byId("displaytable").getModel("disp").getData();
+            wipsaves.create("/TimeSheetEntryCollection", finalRecordPayload, {
+                success: (odata) => { // this._statusreusable('Success', odata);
+                    oldData.res.push({
+                        "ControllingArea": "A000",
+                        "ActivityType": finalRecordPayload.TimeSheetDataFields.ActivityType,
+                        "WBSElement": finalRecordPayload.TimeSheetDataFields.WBSElement,
+                        // "TimeSheetNote" : timenote,
+                        // "RecordedHours" : rechrsqty,
+                        // "RecordedQuantity" : rechrsqty,
+                        "PersonalNumber": prnr,
+                        // "TimeSheetRecord" : timesheetrecord,
+                        // "TimesheetStatus" : timesheetstatus,
+                        "Date": date,
+                        "Status": 'Success',
+                        "Message": ""
+                    });
+                    this.byId("displaytable").setVisible(true);
+                    this.getView().byId("displaytable").getModel("disp").refresh();
+                },
+                error: (err) => { // this._statusreusable('Error', err);
+                    oldData.res.push({
+                        "ControllingArea": "A000",
+                        "ActivityType": this.acttype,
 
-                        //this._statusreusable('Success', odata);
-                        oldData.res.push({
-                            "ActivityType": this.acttype,
-                            "PersonalNumber": perner,
-                            "Status": 'Success',
-                            "Message": ""
-                        });
-                        this.byId("displaytable").setVisible(true);
-                        this.getView().byId("displaytable").getModel("disp").refresh();
+                        "WBSElement": finalRecordPayload.TimeSheetDataFields.WBSElement,
+                        // "TimeSheetNote" : timenote,
+                        // "RecordedHours" : rechrsqty,
+                        // "RecordedQuantity" : rechrsqty,
+                        "PersonalNumber": prnr,
+                        // "TimeSheetRecord" : timesheetrecord,
+                        // "TimesheetStatus" : timesheetstatus,
+                        "Date": date,
+                        "Status": 'Error',
+                        "Message": JSON.parse(err.responseText).error.message.value
+                    });
+                    this.byId("displaytable").setVisible(true);
+                    this.getView().byId("displaytable").getModel("disp").refresh();
+
+                }
+            });
+
+
+        },
+        /**************************************/
+        /*  Method to reprocess failed records*/
+        /**************************************/
+        // _reprocessLineItem : function(oEvent){
+        //     var currentdate = oEvent.getSource().getBindingContext("disp").getProperty("Date");
+        //     debugger;
+        // },
+        _newDate: function (oEvent) {
+            debugger;
+            // var newDate = [];
+
+            this.changedDate = this.formatter.dateTimebackendwithtime(oEvent.getParameter("value"));
+            // newDate.push(changedDate);
+
+
+        },
+
+        _finalreprocess: function () {
+            debugger;
+            // this.getView().byId("displaytable").getModel("disp").getData().res = [];
+            this.getView().byId("displaytable").getModel("disp").refresh();
+            var oTable = this.getView().byId("displaytable");
+            this.count = oTable.mAggregations.items.length;
+
+            for (var i = 0; i < oTable.mAggregations.items.length; i++) {
+
+                var finalRecordPayload = {
+                    "TimeSheetDataFields": {
+                        "ControllingArea": "A000",
+                        "ActivityType": oTable.mAggregations.items[i].mAggregations.cells[1].getText(), // "T001", //this.acttype, // (From the record – “Activity Type”)
+                        "WBSElement": oTable.mAggregations.items[i].mAggregations.cells[2].getText(),
+                        // (From the record – “WBS Element”)
+                        // "RecordedHours": oTable.mAggregations.items[i].mAggregations.cells[4].getText(), // (From the record – “Unbilled Quantity”)
+                        // "RecordedQuantity": oTable.mAggregations.items[i].mAggregations.cells[4].getText(), // (From the record – “Unbilled Quantity”)
+                        "HoursUnitOfMeasure": "H", // (Hard Code)
+                        "TimeSheetNote": "HARDCODED"
                     },
-                    error: (err) => {
-                        debugger
-                        //this._statusreusable('Error', err);
-                        oldData.res.push({
-                            "ActivityType": this.acttype,
-                            "PersonalNumber": perner,
-                           // "PersonalNumber" : this.prnr,
-                            "Status": 'Error',
-                            "Message": JSON.parse(err.responseText).error.message.value
-                        });
-                        this.byId("displaytable").setVisible(true);
-                        this.getView().byId("displaytable").getModel("disp").refresh();
+                    "CompanyCode": "1720",
+                    "PersonWorkAgreement": oTable.mAggregations.items[i].mAggregations.cells[4].getText(), // (Optional, Will be included in the Screen 2 API)
+                    "TimeSheetRecord": "",
+                    "TimeSheetDate": this.formatter.dateTimebackendwithtime(oTable.mAggregations.items[i].mAggregations.cells[5].getValue()), // (From the record – “Timesheet date”)
+                    "TimeSheetIsReleasedOnSave": true, // (Hard Code)
+                    "TimeSheetStatus": "", // (Hard Code)
+                    "TimeSheetOperation": 'C' // (Use “C” for new, “U” for Edited and “D” for deleted)
+                };
 
-                    }
-                });
+                var wipsaves = this.getOwnerComponent().getModel(),
+                    oldData = this.getView().byId("displaytable").getModel("disp").getData();
 
-           
+                /*wipsaves.create("/TimeSheetEntryCollection", finalRecordPayload, {
+                                        success: (odata) => {
+                                            
+                                            //this._statusreusable('Success', odata);
+                                            oldData.res.push({
+                                                "ControllingArea": "A000",  
+                                                "ActivityType": finalRecordPayload.TimeSheetDataFields.ActivityType,
+                                                "WBSElement": finalRecordPayload.TimeSheetDataFields.WBSElement,
+                                                // "TimeSheetNote": this.timesheetnote,
+                                                "PersonalNumber": finalRecordPayload.PersonWorkAgreement,
+                                                "Date" : this.changedDate,
+                                                "Status": 'Success',
+                                                "Message": ""
+                                            });
+                                            this.byId("displaytable").setVisible(true);
+                                            this.getView().byId("displaytable").getModel("disp").refresh();
+                                        },
+                                error: (err) => {
+                                
+                                    //this._statusreusable('Error', err);
+                                    oldData.res.push({
+                                        "ControllingArea": "A000",  
+                                        "ActivityType": finalRecordPayload.TimeSheetDataFields.ActivityType,
+                                                "WBSElement": finalRecordPayload.TimeSheetDataFields.WBSElement,
+                                        // "TimeSheetNote": this.timesheetnote,
+                                        "PersonalNumber": finalRecordPayload.PersonWorkAgreement,
+                                        "Date" : this.changedDate,                           
+                                        "Status": 'Error',
+                                        "Message": JSON.parse(err.responseText).error.message.value
+                                    });
+                                    // this.byId("displaytable").setVisible(true);
+                                    this.getView().byId("displaytable").getModel("disp").refresh();
+
+                                }
+                            });*/
+                this._statusreusable(finalRecordPayload.PersonWorkAgreement, finalRecordPayload, finalRecordPayload.TimeSheetDate);
+                if (i === (this.count - 1)) 
+                    this.getView().byId("displaytable").getModel("disp").getData().res = [];
+                
+
+
+                this.getView().byId("displaytable").getModel("disp").refresh();
+            };
+
+
         },
 
         /**************************************/
