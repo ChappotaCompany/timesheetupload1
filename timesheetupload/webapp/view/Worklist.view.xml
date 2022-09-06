@@ -127,7 +127,7 @@
                                         <Text text="{localModel>Person WorkAgreement ExternalID}"/>
                                         <Text text="{localModel>CompanyCode}"/>
                                           <Text text="{localModel>TimeSheet Record}"/>
-                                        <Text text="{path:'localModel>TimeSheet Date',formatter:'.formatter.dateTime'}"/> 
+                                        <Text text="{path:'localModel>TimeSheet Date',formatter:'.formatter.dateTime'}" /> 
                                         <Text text="{localModel>TimeSheet Is Released OnSave}"/>
                                           <Text text="{localModel>TimeSheet Status}"/>
                                         <Text text="{localModel>TimeSheet Is Executed In TestRun}"/>
@@ -141,17 +141,34 @@
 						</Table>
 					</WizardStep>
 					
-						<WizardStep id="post" title="Upload" validated="true">
+						<WizardStep id="post"  validated="true">
 							<VBox>
                             
 
                          <Table items="{path: 'disp>/res'}" id="displaytable" visible="false">                          
-							<columns>																
+							<columns>
+                            <Column>
+									<Label text="Controlling Area"/>
+								</Column>																	
 								<Column>
 									<Label text="Activity Type"/>
-								</Column>		
+								</Column>	
+                                <Column>
+									<Label text="WBS Element"/>
+								</Column>	
+                                <Column>
+									<Label text="Timesheet Note"/>
+								</Column>
+                                 <!-- <Column>
+									<Label text="Recorded Hours"/>
+								</Column>	
+                                		 -->
+                                	
                                  <Column >
                                     <Label text="Personal Number"/>
+                                </Column>  	
+                                 <Column >
+                                    <Label text="Date"/>
                                 </Column>  						
                                   <Column >
                                     <Label text="Status"/>
@@ -166,17 +183,23 @@
 							</columns>
 							<items>
 								<ColumnListItem>
-									<cells>																	
+									<cells>		
+                                        <Text text="{disp>ControllingArea}"/>																
 										    <Text text="{disp>ActivityType}"/>	
-                                            <Text text="{disp>PersonalNumber}"/>		
+                                            <Text text="{disp>WBSElement}"/>	
+                                            <Text text="{disp>TimeSheetNote}"/>	
+                                            <!-- <Text text="{disp>RecordedHours}"/>	 -->
+                                            <Text text="{disp>PersonalNumber}"/>	
+                                            <DatePicker value="{path:'disp>Date',formatter:'.formatter.dateTime'}" enabled="true" change="_newDate"/>
                                             <Text text="{disp>Status}"/>
                                             <Text text="{disp>Message}"/>
-                                            <Button text="Reprocess" visible="{path:'disp>Status',formatter:'.formatter.status'}"/>
+                                            <Button text="Reprocess" visible="{path:'disp>Status',formatter:'.formatter.status'}" press="_reprocessLineItem"/>
                                     </cells>
 								</ColumnListItem>
 							</items>
 						</Table> 
                         </VBox>
+                        <Button text="Reproces" press="_finalreprocess" />
 						</WizardStep>
 					</Wizard>
       
