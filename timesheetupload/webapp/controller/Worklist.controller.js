@@ -235,7 +235,7 @@ sap.ui.define([
                         "TimeSheetNote": "HARDCODED"
                     },
                     "CompanyCode": "1720",
-                    "PersonWorkAgreement": oTable.mAggregations.items[i].mAggregations.cells[4].getText(), // (Optional, Will be included in the Screen 2 API)
+                    "PersonWorkAgreement": oTable.mAggregations.items[i].mAggregations.cells[4].getValue(), // (Optional, Will be included in the Screen 2 API)
                     "TimeSheetRecord": "",
                     "TimeSheetDate": this.formatter.dateTimebackendwithtime(oTable.mAggregations.items[i].mAggregations.cells[5].getValue()), // (From the record – “Timesheet date”)
                     "TimeSheetIsReleasedOnSave": true, // (Hard Code)
