@@ -189,7 +189,7 @@
                                             <Text text="{disp>WBSElement}"/>	
                                             <Text text="{disp>TimeSheetNote}"/>	
                                             <!-- <Text text="{disp>RecordedHours}"/>	 -->
-                                            <Text text="{disp>PersonalNumber}"/>	
+                                            <Input value="{disp>PersonalNumber}"/>	
                                             <DatePicker value="{path:'disp>Date',formatter:'.formatter.dateTime'}" enabled="true" change="_newDate"/>
                                             <Text text="{disp>Status}"/>
                                             <Text text="{disp>Message}"/>
