@@ -10,7 +10,9 @@ sap.ui.define([
     './DemoPersoService',
     "../libs/xlsx",
     "../libs/jszip",
-], function (BaseController, JSONModel, formatter, Filter, FilterOperator, MessageToast, TablePersoController, mlibrary, DemoPersoService, xlsx, jszip) {
+    "sap/ui/core/util/Export",
+"sap/ui/core/util/ExportTypeCSV"
+], function (BaseController, JSONModel, formatter, Filter, FilterOperator, MessageToast, TablePersoController, mlibrary, DemoPersoService, xlsx, jszip,Export,ExportTypeCSV) {
     "use strict";
     var ResetAllMode = mlibrary.ResetAllMode;
 
@@ -76,6 +78,11 @@ sap.ui.define([
 
         onUpload: function (e) {
             this._import(e.getParameter("files") && e.getParameter("files")[0]);
+            
+            this.getView().byId("displaytable").getModel("disp").getData().res = [];
+
+            this.getView().byId("displaytable").getModel("disp").refresh();
+
         },
         /**********************************************************/
         /*  Method to Post time to TimeSheetEntryCollection        */
@@ -94,7 +101,7 @@ sap.ui.define([
         // },
 
         _postTime: function (oEvent) {
-            debugger;
+            
             this.getView().byId("displaytable").getModel("disp").getData().res = [];
 
             this.getView().byId("displaytable").getModel("disp").refresh();
@@ -115,7 +122,7 @@ sap.ui.define([
                         "RecordedHours": oTable.mAggregations.items[i].mAggregations.cells[7].getText(), // (From the record – “Unbilled Quantity”)
                         "RecordedQuantity": oTable.mAggregations.items[i].mAggregations.cells[7].getText(), // (From the record – “Unbilled Quantity”)
                         "HoursUnitOfMeasure": "H", // (Hard Code)
-                        "TimeSheetNote": "HARDCODED"
+                        "TimeSheetNote": oTable.mAggregations.items[i].mAggregations.cells[6].getText()
                     },
                     "CompanyCode": "1720",
                     // (Hard Code)
@@ -139,7 +146,7 @@ sap.ui.define([
 
                 // this._statusreusable(this.acttype, this.wbs, this.timesheetnote, this.rechoursqty, this.prnr, this.timesheetrecord, this.timesheetstatus, this.date, finalRecordPayload);
 
-                this._statusreusable(this.prnr, finalRecordPayload, this.date);
+                this._statusreusable(this.prnr, finalRecordPayload, this.date,this.wbs,this.rechoursqty);
 
 
             }
@@ -150,7 +157,7 @@ sap.ui.define([
         /*  Method used to print Status, Error and ReProcess on DisplayTable            */
         /******************************************************************************/
         // _statusreusable: function (acttype,wbs,timenote,rechrsqty,prnr,timesheetrecord,timesheetstatus,date,finalRecordPayload) {
-        _statusreusable: function (prnr, finalRecordPayload, date) {
+        _statusreusable: function (prnr, finalRecordPayload, date,wbs,qty) {
             debugger;
             var wipsaves = this.getOwnerComponent().getModel(),
                 oldData = this.getView().byId("displaytable").getModel("disp").getData();
@@ -160,9 +167,9 @@ sap.ui.define([
                         "ControllingArea": "A000",
                         "ActivityType": finalRecordPayload.TimeSheetDataFields.ActivityType,
                         "WBSElement": finalRecordPayload.TimeSheetDataFields.WBSElement,
-                        // "TimeSheetNote" : timenote,
+                        "TimeSheetNote" : finalRecordPayload.TimeSheetDataFields.TimeSheetNote,
                         // "RecordedHours" : rechrsqty,
-                        // "RecordedQuantity" : rechrsqty,
+                        "RecordedQuantity" : finalRecordPayload.TimeSheetDataFields.RecordedQuantity,
                         "PersonalNumber": prnr,
                         // "TimeSheetRecord" : timesheetrecord,
                         // "TimesheetStatus" : timesheetstatus,
@@ -179,9 +186,9 @@ sap.ui.define([
                         "ActivityType": this.acttype,
 
                         "WBSElement": finalRecordPayload.TimeSheetDataFields.WBSElement,
-                        // "TimeSheetNote" : timenote,
+                        "TimeSheetNote" : finalRecordPayload.TimeSheetDataFields.TimeSheetNote,
                         // "RecordedHours" : rechrsqty,
-                        // "RecordedQuantity" : rechrsqty,
+                        "RecordedQuantity" :  finalRecordPayload.TimeSheetDataFields.RecordedQuantity,
                         "PersonalNumber": prnr,
                         // "TimeSheetRecord" : timesheetrecord,
                         // "TimesheetStatus" : timesheetstatus,
@@ -227,17 +234,17 @@ sap.ui.define([
                     "TimeSheetDataFields": {
                         "ControllingArea": "A000",
                         "ActivityType": oTable.mAggregations.items[i].mAggregations.cells[1].getText(), // "T001", //this.acttype, // (From the record – “Activity Type”)
-                        "WBSElement": oTable.mAggregations.items[i].mAggregations.cells[2].getText(),
+                        "WBSElement": oTable.mAggregations.items[i].mAggregations.cells[2].getValue(),
                         // (From the record – “WBS Element”)
                         // "RecordedHours": oTable.mAggregations.items[i].mAggregations.cells[4].getText(), // (From the record – “Unbilled Quantity”)
-                        // "RecordedQuantity": oTable.mAggregations.items[i].mAggregations.cells[4].getText(), // (From the record – “Unbilled Quantity”)
+                        "RecordedQuantity": oTable.mAggregations.items[i].mAggregations.cells[4].getValue(), // (From the record – “Unbilled Quantity”)
                         "HoursUnitOfMeasure": "H", // (Hard Code)
-                        "TimeSheetNote": "HARDCODED"
+                        "TimeSheetNote": oTable.mAggregations.items[i].mAggregations.cells[3].getText()
                     },
                     "CompanyCode": "1720",
-                    "PersonWorkAgreement": oTable.mAggregations.items[i].mAggregations.cells[4].getValue(), // (Optional, Will be included in the Screen 2 API)
+                    "PersonWorkAgreement": oTable.mAggregations.items[i].mAggregations.cells[5].getValue(), // (Optional, Will be included in the Screen 2 API)
                     "TimeSheetRecord": "",
-                    "TimeSheetDate": this.formatter.dateTimebackendwithtime(oTable.mAggregations.items[i].mAggregations.cells[5].getValue()), // (From the record – “Timesheet date”)
+                    "TimeSheetDate": this.formatter.dateTimebackendwithtime(oTable.mAggregations.items[i].mAggregations.cells[6].getValue()), // (From the record – “Timesheet date”)
                     "TimeSheetIsReleasedOnSave": true, // (Hard Code)
                     "TimeSheetStatus": "", // (Hard Code)
                     "TimeSheetOperation": 'C' // (Use “C” for new, “U” for Edited and “D” for deleted)
@@ -246,42 +253,8 @@ sap.ui.define([
                 var wipsaves = this.getOwnerComponent().getModel(),
                     oldData = this.getView().byId("displaytable").getModel("disp").getData();
 
-                /*wipsaves.create("/TimeSheetEntryCollection", finalRecordPayload, {
-                                        success: (odata) => {
-                                            
-                                            //this._statusreusable('Success', odata);
-                                            oldData.res.push({
-                                                "ControllingArea": "A000",  
-                                                "ActivityType": finalRecordPayload.TimeSheetDataFields.ActivityType,
-                                                "WBSElement": finalRecordPayload.TimeSheetDataFields.WBSElement,
-                                                // "TimeSheetNote": this.timesheetnote,
-                                                "PersonalNumber": finalRecordPayload.PersonWorkAgreement,
-                                                "Date" : this.changedDate,
-                                                "Status": 'Success',
-                                                "Message": ""
-                                            });
-                                            this.byId("displaytable").setVisible(true);
-                                            this.getView().byId("displaytable").getModel("disp").refresh();
-                                        },
-                                error: (err) => {
-                                
-                                    //this._statusreusable('Error', err);
-                                    oldData.res.push({
-                                        "ControllingArea": "A000",  
-                                        "ActivityType": finalRecordPayload.TimeSheetDataFields.ActivityType,
-                                                "WBSElement": finalRecordPayload.TimeSheetDataFields.WBSElement,
-                                        // "TimeSheetNote": this.timesheetnote,
-                                        "PersonalNumber": finalRecordPayload.PersonWorkAgreement,
-                                        "Date" : this.changedDate,                           
-                                        "Status": 'Error',
-                                        "Message": JSON.parse(err.responseText).error.message.value
-                                    });
-                                    // this.byId("displaytable").setVisible(true);
-                                    this.getView().byId("displaytable").getModel("disp").refresh();
-
-                                }
-                            });*/
-                this._statusreusable(finalRecordPayload.PersonWorkAgreement, finalRecordPayload, finalRecordPayload.TimeSheetDate);
+              
+                this._statusreusable(finalRecordPayload.PersonWorkAgreement, finalRecordPayload, finalRecordPayload.TimeSheetDate,finalRecordPayload.TimeSheetDataFields.WBSElement,finalRecordPayload.TimeSheetDataFields.RecordedQuantity);
                 if (i === (this.count - 1)) 
                     this.getView().byId("displaytable").getModel("disp").getData().res = [];
                 
@@ -311,6 +284,83 @@ sap.ui.define([
 
         onTableGrouping: function (oEvent) {
             this._oTPC.setHasGrouping(oEvent.getSource().getSelected());
+        },
+        /************************************************/
+        /*  Method used to export data into Excel Sheeet*/
+        /************************************************/
+        _exportexcel : function(){
+
+            var oExport = new sap.ui.core.util.Export({
+				exportType: new sap.ui.core.util.ExportTypeCSV({
+					separatorChar: "\t",
+					mimeType: "application/vnd.ms-excel",
+					charset: "utf-8",
+					fileExtension: "xls"
+				}),
+				models: this.getView().byId("displaytable").getModel("disp"),
+				rows: {
+					path: "/res"
+				},
+				columns: [{
+						name: "ControllingArea",
+						template: {
+							content: "{ControllingArea}"
+						}
+                       
+					},
+                    {
+                        name: "ActivityType",
+                        template: {
+                            content: "{ActivityType}"
+                        }
+                    },
+                    {
+                        name: "WBSElement",
+                        template: {
+                            content: "{WBSElement}"
+                        }
+                    },
+                        {
+                            name: "TimeSheetNote",
+                            template: {
+                                content: "{TimeSheetNote}"
+                            }
+                        },
+                            {
+                                name: "RecordedQuantity",
+                                template: {
+                                    content: "{RecordedQuantity}"
+                                }
+                            },
+                                {
+                                    name: "Date",
+                                    template: {
+                                     
+                                        content: "{Date}"
+                                    }
+                                },
+                                    {
+                                        name: "Status",
+                                        template: {
+                                            content: "{Status}"
+                                        }
+                                    },
+                                    {
+                                        name: "Message",
+                                        template: {
+                                            content: "{Message}"
+                                        }
+                                    }
+                       
+
+				]
+			});
+			// download exported file
+			oExport.saveFile().catch(function(oError) {
+				MessageBox.error("Error when downloading data. Please try again!\n\n" + oError);
+			}).then(function() {
+				oExport.destroy();
+			});
         },
 
         /* =========================================================== */
