@@ -145,7 +145,16 @@
 							<VBox>
                             
 
-                         <Table items="{path: 'disp>/res'}" id="displaytable" visible="false">                          
+                         <Table items="{path: 'disp>/res'}" id="displaytable" visible="false">     
+                          <headerToolbar>
+                                    <Toolbar>
+                                        <content>
+                                        <ToolbarSpacer />
+                                            <Button icon = "sap-icon://download" press = "_exportexcel" />
+
+                                        </content>
+                                    </Toolbar>
+                            </headerToolbar>                     
 							<columns>
                             <Column>
 									<Label text="Controlling Area"/>
@@ -159,10 +168,10 @@
                                 <Column>
 									<Label text="Timesheet Note"/>
 								</Column>
-                                 <!-- <Column>
-									<Label text="Recorded Hours"/>
+                                 <Column>
+									<Label text="Quantity"/>
 								</Column>	
-                                		 -->
+                                		
                                 	
                                  <Column >
                                     <Label text="Personal Number"/>
@@ -186,9 +195,9 @@
 									<cells>		
                                         <Text text="{disp>ControllingArea}"/>																
 										    <Text text="{disp>ActivityType}"/>	
-                                            <Text text="{disp>WBSElement}"/>	
+                                            <Input value="{disp>WBSElement}"/>	
                                             <Text text="{disp>TimeSheetNote}"/>	
-                                            <!-- <Text text="{disp>RecordedHours}"/>	 -->
+                                            <Input value="{disp>RecordedQuantity}"/>	
                                             <Input value="{disp>PersonalNumber}"/>	
                                             <DatePicker value="{path:'disp>Date',formatter:'.formatter.dateTime'}" enabled="true" change="_newDate"/>
                                             <Text text="{disp>Status}"/>
