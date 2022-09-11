@@ -335,7 +335,7 @@ sap.ui.define([
                                 {
                                     name: "Date",
                                     template: {
-                                        //content: "{path:'Date',formatter:'.formatter.dateTimeDisplay1'}"
+                                     
                                         content: "{Date}"
                                     }
                                 },

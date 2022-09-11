@@ -162,7 +162,7 @@
 								<Column>
 									<Label text="Activity Type"/>
 								</Column>	
-                                <Column>
+                                <Column width="150px">
 									<Label text="WBS Element"/>
 								</Column>	
                                 <Column>
