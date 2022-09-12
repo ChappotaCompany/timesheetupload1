@@ -87,18 +87,7 @@ sap.ui.define([
         /**********************************************************/
         /*  Method to Post time to TimeSheetEntryCollection        */
         /**********************************************************/
-        // _postTime1 : function(oEvent){
-        //     var displaytablelength = this.byId("displaytable").getItems().length;
-        //     var data = [];
-        //     if(displaytablelength > 0){
-
-        //         this.byId("displaytable").getModel("disp").setData(data);
-        //         this._postTime1();
-        //     }
-        //     else {
-        //         this._postTime1();
-        //     }
-        // },
+ 
 
         _postTime: function (oEvent) {
             
@@ -207,19 +196,86 @@ sap.ui.define([
         /**************************************/
         /*  Method to reprocess failed records*/
         /**************************************/
-        // _reprocessLineItem : function(oEvent){
-        //     var currentdate = oEvent.getSource().getBindingContext("disp").getProperty("Date");
-        //     debugger;
-        // },
-        _newDate: function (oEvent) {
+        _reprocessLineItem : function(oEvent){
+           // var currentdate = oEvent.getSource().getBindingContext("disp").getProperty("");
             debugger;
-            // var newDate = [];
-
-            this.changedDate = this.formatter.dateTimebackendwithtime(oEvent.getParameter("value"));
-            // newDate.push(changedDate);
-
-
+         
+            var finalRecordPayload = {
+                "TimeSheetDataFields": {
+                    "ControllingArea": "A000",
+                    "ActivityType": oEvent.getSource().getBindingContext("disp").getProperty("ActivityType"), // "T001", //this.acttype, // (From the record – “Activity Type”)
+                    "WBSElement": oEvent.getSource().getBindingContext("disp").getProperty("WBSElement"),
+                    // (From the record – “WBS Element”)
+                    // "RecordedHours": oTable.mAggregations.items[i].mAggregations.cells[4].getText(), // (From the record – “Unbilled Quantity”)
+                    "RecordedQuantity": oEvent.getSource().getBindingContext("disp").getProperty("RecordedQuantity"), // (From the record – “Unbilled Quantity”)
+                    "HoursUnitOfMeasure": "H", // (Hard Code)
+                    "TimeSheetNote": oEvent.getSource().getBindingContext("disp").getProperty("TimeSheetNote")
+                },
+                "CompanyCode": "1720",
+                "PersonWorkAgreement": oEvent.getSource().getBindingContext("disp").getProperty("PersonWorkAgreement"), // (Optional, Will be included in the Screen 2 API)
+                "TimeSheetRecord": "",
+                "TimeSheetDate": this.formatter.dateTimebackendwithtime(oEvent.getSource().getBindingContext("disp").getProperty("Date")), // (From the record – “Timesheet date”)
+                "TimeSheetIsReleasedOnSave": true, // (Hard Code)
+                "TimeSheetStatus": "", // (Hard Code)
+                "TimeSheetOperation": 'C' // (Use “C” for new, “U” for Edited and “D” for deleted)
+            };
+            // this._statusreusableReprocesssingleline(finalRecordPayload.PersonWorkAgreement, finalRecordPayload, finalRecordPayload.TimeSheetDate,finalRecordPayload.TimeSheetDataFields.WBSElement,finalRecordPayload.TimeSheetDataFields.RecordedQuantity);
+            this._statusreusableReprocesssingleline(finalRecordPayload);
         },
+        _statusreusableReprocesssingleline : function(finalRecordPayload){
+            debugger;
+         var wipsaves = this.getOwnerComponent().getModel();
+                
+            wipsaves.create("/TimeSheetEntryCollection", finalRecordPayload, {
+                success: (odata) => { // this._statusreusable('Success', odata);
+                    // oldData.res.push({
+                    //     "ControllingArea": "A000",
+                    //     "ActivityType": finalRecordPayload.TimeSheetDataFields.ActivityType,
+                    //     "WBSElement": finalRecordPayload.TimeSheetDataFields.WBSElement,
+                    //     "TimeSheetNote" : finalRecordPayload.TimeSheetDataFields.TimeSheetNote,
+                    //     // "RecordedHours" : rechrsqty,
+                    //     "RecordedQuantity" : finalRecordPayload.TimeSheetDataFields.RecordedQuantity,
+                    //     "PersonalNumber": prnr,
+                    //     // "TimeSheetRecord" : timesheetrecord,
+                    //     // "TimesheetStatus" : timesheetstatus,
+                    //     "Date": date,
+                    //     "Status": 'Success',
+                    //     "Message": ""
+                    // });
+                    // this.byId("displaytable").setVisible(true);
+                    this.getView().byId("displaytable").getModel("disp").refresh();
+                },
+                error: (err) => { // this._statusreusable('Error', err);
+                    // oldData.res.push({
+                    //     "ControllingArea": "A000",
+                    //     "ActivityType": this.acttype,
+
+                    //     "WBSElement": finalRecordPayload.TimeSheetDataFields.WBSElement,
+                    //     "TimeSheetNote" : finalRecordPayload.TimeSheetDataFields.TimeSheetNote,
+                    //     // "RecordedHours" : rechrsqty,
+                    //     "RecordedQuantity" :  finalRecordPayload.TimeSheetDataFields.RecordedQuantity,
+                    //     "PersonalNumber": prnr,
+                    //     // "TimeSheetRecord" : timesheetrecord,
+                    //     // "TimesheetStatus" : timesheetstatus,
+                    //     "Date": date,
+                    //     "Status": 'Error',
+                    //     "Message": JSON.parse(err.responseText).error.message.value
+                    // });
+                    // this.byId("displaytable").setVisible(true);
+                    this.getView().byId("displaytable").getModel("disp").refresh();
+
+                }
+            });
+        },
+        // _newDate: function (oEvent) {
+        //     debugger;
+        //     // var newDate = [];
+
+        //     this.changedDate = this.formatter.dateTimebackendwithtime(oEvent.getParameter("value"));
+        //     // newDate.push(changedDate);
+
+
+        // },
 
         _finalreprocess: function () {
             debugger;

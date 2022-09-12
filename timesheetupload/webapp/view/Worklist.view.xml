@@ -176,7 +176,7 @@
                                  <Column >
                                     <Label text="Personal Number"/>
                                 </Column>  	
-                                 <Column >
+                                 <Column width="150px">
                                     <Label text="Date"/>
                                 </Column>  						
                                   <Column >
